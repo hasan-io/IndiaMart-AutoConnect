@@ -11,13 +11,26 @@ let autoRefreshTimer = null;
 // Initialize on page load
 console.log('IndiaMart Lead Sniper: Initialized (Vault Secured Mode).');
 
-chrome.storage.local.get(['selectedCountry', 'selectedMedicine', 'isRunning'], (data) => {
-  const selectedCountry = data.selectedCountry || 'Canada';
-  const selectedMedicine = data.selectedMedicine || 'Tretinoin';
-  const isRunning = data.isRunning !== false;
+chrome.storage.local.get(['selectedCountry', 'selectedMedicine', 'botEnabled', 'autoRefresh', 'refreshInterval'], (data) => {
+  const selectedCountry = data.selectedCountry || '';
+  const selectedMedicine = data.selectedMedicine || '';
+  const botEnabled = data.botEnabled !== false;
+  
+  // Debug what we're loading
+  console.log('📦 Loaded from storage:');
+  console.log('  🤖 botEnabled:', botEnabled);
+  console.log('  💊 selectedMedicine:', selectedMedicine || '(empty)');
+  console.log('  🌍 selectedCountry:', selectedCountry || '(empty)');
+  console.log('  ⏱️  autoRefresh:', data.autoRefresh);
+  console.log('  ⏲️  refreshInterval:', data.refreshInterval, 'seconds');
 
-  if (!isRunning) {
-    console.log('🛑 Bot is OFF');
+  if (!botEnabled) {
+    console.log('🛑 Bot is DISABLED - Waiting for user to enable...');
+    return;
+  }
+
+  if (!selectedMedicine || !selectedCountry) {
+    console.log('⚠️ Medicine or Country not selected! Please select from popup.');
     return;
   }
 
@@ -30,9 +43,26 @@ chrome.storage.local.get(['selectedCountry', 'selectedMedicine', 'isRunning'], (
   });
 
   observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+    childList: true,
+    subtree: true
+  });
+
+  // ✅ AUTO-REFRESH LOGIC
+  chrome.storage.local.get(['autoRefresh', 'refreshInterval'], (refreshData) => {
+    const autoRefreshEnabled = refreshData.autoRefresh !== false;
+    const refreshInterval = (refreshData.refreshInterval || 15) * 1000; // Convert to milliseconds
+
+    if (autoRefreshEnabled && refreshInterval > 0) {
+      console.log(`⏱️ Auto-refresh ENABLED - Will refresh every ${refreshData.refreshInterval} seconds`);
+      
+      autoRefreshTimer = setInterval(() => {
+        console.log(`🔄 Auto-refreshing portal...`);
+        location.reload();
+      }, refreshInterval);
+    } else {
+      console.log('⏱️ Auto-refresh DISABLED');
+    }
+  });
 
   // Process existing leads
   processLeads(selectedCountry, selectedMedicine);
@@ -140,12 +170,18 @@ function processLeads(selectedCountry, selectedMedicine) {
 // HELPER FUNCTION: Extract Country
 // ==========================================
 function extractCountry(text) {
-  // Input format: "2 hrs ago  Canada" or "22 mins ago  🇨🇦 Canada"
+  // Input format: "2 hrs ago Canada" or "22 mins ago 🇨🇦 Canada" or just "Canada"
   // Output: "Canada"
 
   if (!text || text.trim() === '') {
     return 'Unknown';
   }
+
+  // Clean text - remove emojis, time indicators
+  let cleanText = text
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') // Remove emojis
+    .replace(/\d+\s*(hrs?|hours?|mins?|minutes?|ago)/gi, '') // Remove time indicators
+    .trim();
 
   // List of common countries (Add more as needed)
   const countries = [
@@ -180,15 +216,15 @@ function extractCountry(text) {
     'New Zealand',
   ];
 
-  // Search for known country in text
+  // Search for known country in text (case-insensitive)
   for (let country of countries) {
-    if (text.includes(country)) {
+    if (cleanText.toLowerCase().includes(country.toLowerCase())) {
       return country;
     }
   }
 
-  // If no known country found, try to extract last word
-  const words = text.split(/\s+/).filter((w) => w.length > 0);
+  // If no known country found, try to extract last meaningful word
+  const words = cleanText.split(/\s+/).filter((w) => w.length > 0);
   const lastWord = words[words.length - 1];
 
   // Return last word if it looks like a country (2+ characters, no numbers)

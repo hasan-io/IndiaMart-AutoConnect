@@ -408,6 +408,10 @@ function renderCheckboxes(containerId, itemsArray, checkedItems, dataType, sortT
 
 // Save all data to Chrome storage
 function saveAllData() {
+  const selectedMedicinesArray = getChecked('med');
+  const selectedCountriesArray = getChecked('ctry');
+  const selectedRulesArray = getChecked('rule');
+
   const allData = {
     botEnabled: document.getElementById('botEnabled').checked,
     mobileOnly: document.getElementById('mobileOnly').checked,
@@ -416,9 +420,12 @@ function saveAllData() {
     savedMedicines: availableMedicines,
     savedCountries: availableCountries,
     savedRules: availableRules,
-    selectedMedicines: getChecked('med'),
-    selectedCountries: getChecked('ctry'),
-    selectedRules: getChecked('rule'),
+    selectedMedicines: selectedMedicinesArray,
+    selectedCountries: selectedCountriesArray,
+    selectedRules: selectedRulesArray,
+    // ✅ FIX: Also save FIRST selected item as singular for content.js compatibility
+    selectedMedicine: selectedMedicinesArray.length > 0 ? selectedMedicinesArray[0] : '',
+    selectedCountry: selectedCountriesArray.length > 0 ? selectedCountriesArray[0] : '',
     medSort: document.getElementById('medSort').value,
     countrySort: document.getElementById('countrySort').value,
     ruleSort: document.getElementById('ruleSort').value
@@ -428,6 +435,8 @@ function saveAllData() {
 
   chrome.storage.local.set(allData, () => {
     console.log('✅ Configuration saved to Chrome storage');
+    console.log('📍 Selected Medicine:', allData.selectedMedicine);
+    console.log('🌍 Selected Country:', allData.selectedCountry);
     
     // ✅ SHOW TOAST NOTIFICATION
     showSaveNotification();
