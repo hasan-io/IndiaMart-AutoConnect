@@ -84,18 +84,20 @@ function processLeads(selectedCountry, selectedMedicine) {
   cards.forEach((card, index) => {
     try {
       // ✅ FIX 1: CORRECT MEDICINE SELECTOR
-      // Portal HTML: <span class="SLC_f18 SLC_fwb">Tretinoin Cream 0.025%</span>
-      const medicineElement = card.querySelector('span.SLC_f18.SLC_fwb');
+      // Portal HTML: <h2>Anavar Oxandrolone Tablets</h2>
+      const medicineElement = card.querySelector('h2');
       const medicineName = medicineElement?.innerText?.trim() || 'Unknown';
 
       // ✅ FIX 2: CORRECT COUNTRY SELECTOR
-      // Portal HTML: <span class="BuyldC_lh">2 hrs ago  Canada</span>
-      const countrySpan = card.querySelector('strong.BuyLC_tltpw');
+      // Portal HTML: <span class="state_click_tcont">Maharashtra</span> or <span class="city_click_tcont">Amravati</span>
+      const countrySpan = card.querySelector('span.state_click_tcont');
       const countryFullText = countrySpan?.innerText?.trim() || '';
       const countryName = extractCountry(countryFullText);
 
-      // ✅ BUTTON SELECTOR (Already correct in original)
-      const button = card.querySelector('button.SLC_FillCTA');
+      // ✅ BUTTON SELECTOR
+      // Portal HTML: <span id="purchase_149430845913">Contact Buyer Now</span>
+      // Looking for any span with id starting with "purchase_"
+      const button = card.querySelector('span[id^="purchase_"]');
       const buttonExists = !!button;
 
       // ==========================================
@@ -183,7 +185,7 @@ function extractCountry(text) {
     .replace(/\d+\s*(hrs?|hours?|mins?|minutes?|ago)/gi, '') // Remove time indicators
     .trim();
 
-  // List of common countries (Add more as needed)
+  // List of common countries + Indian states (Add more as needed)
   const countries = [
     'Canada',
     'USA',
@@ -214,6 +216,30 @@ function extractCountry(text) {
     'Finland',
     'Ireland',
     'New Zealand',
+    // Indian States
+    'Maharashtra',
+    'Delhi',
+    'Karnataka',
+    'Tamil Nadu',
+    'Telangana',
+    'Uttar Pradesh',
+    'West Bengal',
+    'Gujarat',
+    'Haryana',
+    'Punjab',
+    'Rajasthan',
+    'Madhya Pradesh',
+    'Andhra Pradesh',
+    'Kerala',
+    'Odisha',
+    'Jharkhand',
+    'Assam',
+    'Bihar',
+    'Himachal Pradesh',
+    'Uttarakhand',
+    'Goa',
+    'Chandigarh',
+    'Jammu & Kashmir',
   ];
 
   // Search for known country in text (case-insensitive)
