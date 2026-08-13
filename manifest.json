@@ -16,7 +16,7 @@
   "content_scripts": [
   {
     "matches": [
-      "*://seller.indiamart.com/*",
+      "*://seller.indiamart.com/bltxn*",
       "https://lead-connect-dusky.vercel.app/*",
       "file://*/*"
     ],
