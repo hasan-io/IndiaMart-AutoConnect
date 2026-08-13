@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "IndiaMart Lead Sniper",
+  "version": "4.0",
+  "description": "Auto-clicks targeted leads on IndiaMart. Enterprise Secured.",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+  {
+    "matches": [
+      "*://seller.indiamart.com/*",
+      "https://lead-connect-dusky.vercel.app/*",
+      "file://*/*"
+    ],
+    "js": ["content.js"]
+  }
+]
+}
