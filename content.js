@@ -30,11 +30,9 @@ chrome.storage.local.get(['selectedCountry', 'selectedMedicine', 'isRunning'], (
   });
 
   observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: false,
-    characterData: false,
-  });
+  childList: true,
+  subtree: true,
+});
 
   // Process existing leads
   processLeads(selectedCountry, selectedMedicine);
@@ -62,7 +60,7 @@ function processLeads(selectedCountry, selectedMedicine) {
 
       // ✅ FIX 2: CORRECT COUNTRY SELECTOR
       // Portal HTML: <span class="BuyldC_lh">2 hrs ago  Canada</span>
-      const countrySpan = card.querySelector('span.BuyldC_lh');
+      const countrySpan = card.querySelector('strong.BuyLC_tltpw');
       const countryFullText = countrySpan?.innerText?.trim() || '';
       const countryName = extractCountry(countryFullText);
 
