@@ -79,7 +79,7 @@ function checkTopLead() {
         console.log('  💊 Extracted medicineName: ' + medicineName);
 
         // Extract country name
-        const countryElement = card.querySelector('.location-name');
+        const countryElement = card.querySelector('strong.BuyLC_tltpw');
         const countryName = countryElement ? countryElement.innerText.trim() : 'Unknown';
         console.log('  🌍 Extracted countryName: ' + countryName);
 
